@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Página Inicial</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+    body {
+        margin: 0;
+        font-family: 'Roboto', 'Segoe UI', sans-serif;
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .sidebar {
+        width: 250px;
+        background-color: #004c99;
+        color: white;
+        padding: 20px;
+        transition: width 0.3s ease, padding 0.3s ease;
+        overflow-y: auto;
+    }
+
+    .sidebar.collapsed {
+        width: 50px;
+        padding: 20px 10px;
+        overflow-x: hidden;
+    }
+
+    /* Cabeçalho do menu com botão ☰ */
+    .menu-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .toggle-btn {
+        background-color: transparent;
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 0;
+        margin: 0;
+    }
+
+    /* Esconde o título "Menu" quando colapsado */
+    .sidebar.collapsed .menu-header h3 {
+        display: none;
+    }
+
+    /* Garante que o botão ☰ continue visível */
+    .sidebar.collapsed .menu-header .toggle-btn {
+        display: block;
+        margin-left: auto;
+    }
+
+    /* Esconde os links e divisórias ao colapsar */
+    .sidebar a,
+    .sidebar hr,
+    .sidebar #setores-maquinas {
+        opacity: 1;
+        transition: opacity 0.3s ease;
+    }
+
+    .sidebar.collapsed a,
+    .sidebar.collapsed hr,
+    .sidebar.collapsed #setores-maquinas {
+        display: none;
+    }
+
+    .sidebar a {
+        color: white;
+        display: block;
+        margin: 10px 0;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .sidebar a:hover {
+        text-decoration: underline;
+    }
+
+    .main {
+        flex-grow: 1;
+        position: relative;
+    }
+
+    .iframe-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+    /* Responsividade para celular */
+    @media (max-width: 768px) {
+        .sidebar {
+            position: absolute;
+            height: 100%;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        .main {
+            margin-left: 0;
+        }
+    }
+</style>
+
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="menu-header">
+            <h3>Menu</h3>
+            <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+        </div>
+        <div id="setores-maquinas">
+             <h4>Setores</h4>
+             <!-- JS vai preencher aqui -->
+        </div>
+
+        <a onclick="loadPage('/boas_vindas')">🏠 Início</a>
+
+    {% if perfil == 'Administrador' %}
+        <a onclick="loadPage('/cadastrar_usuario')">👤 Cadastrar Usuário</a>
+        <a onclick="loadPage('/cadastrar_maquina')">🏭 Cadastrar Máquina</a>
+        <a onclick="loadPage('/monitoramento_oee')">📊 Monitoramento OEE</a>
+    {% elif perfil == 'Gerencial' %}
+        <a onclick="loadPage('/monitoramento_oee')">📊 Monitoramento OEE</a>
+    {% elif perfil == 'Operador' %}
+        <a onclick="loadPage('/painel_maquina')">🔧 Painel da Máquina</a>
+    {% endif %}
+
+        <hr style="border-color: #ccc;">
+
+        <a href="{{ url_for('logout') }}">🚪 Sair</a>
+    </div>
+
+    <div class="main">
+        <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+        <div class="iframe-container">
+            <iframe id="conteudo" src="/boas_vindas"></iframe>
+        </div>
+    </div>
+
+    <script>
+        function loadPage(url) {
+            document.getElementById('conteudo').src = url;
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+        }
+    </script>
+    <script>
+    function carregarSetoresMaquinas() {
+        fetch('/dados_setores_maquinas')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('setores-maquinas');
+                container.innerHTML = '<h4>Setores</h4>';
+
+                for (let setor in data) {
+                    // Cria botão para expandir/recolher
+                    const setorDiv = document.createElement('div');
+                    setorDiv.classList.add('setor-item');
+
+                    const header = document.createElement('div');
+                    header.classList.add('setor-header');
+                    header.innerHTML = `<span class="toggle-icon">▶</span> ${setor}`;
+                    header.onclick = () => {
+                        ul.classList.toggle('hidden');
+                        header.querySelector('.toggle-icon').textContent =
+                            ul.classList.contains('hidden') ? '▶' : '▼';
+                    };
+
+                    const ul = document.createElement('ul');
+                    ul.classList.add('maquinas-list', 'hidden');
+
+                    data[setor].forEach(maquina => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<a onclick="loadPage('/painel_maquina/${maquina.id}')">${maquina.nome}</a>`;
+                        ul.appendChild(li);
+                    });
+
+                    setorDiv.appendChild(header);
+                    setorDiv.appendChild(ul);
+                    container.appendChild(setorDiv);
+                }
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', carregarSetoresMaquinas);
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Adicione esta linha para exibir o nome na área de boas-vindas
+        loadPage('/boas_vindas');
+    });
+</script>
+
+</body>
+</html>
