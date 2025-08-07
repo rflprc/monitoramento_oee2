@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Usuário</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <h2>Editar Usuário: {{ usuario['matricula'] }}</h2>
+        <form method="POST">
+            <label>Nome</label>
+            <input type="text" name="nome" value="{{ usuario['nome'] }}" required>
+
+            <label>Nova Senha (deixe em branco para manter a atual)</label>
+            <input type="password" name="senha">
+
+            <label>Perfil</label>
+            <select name="perfil" required>
+                <option value="Administrador" {% if usuario['perfil'] == 'Administrador' %}selected{% endif %}>Administrador</option>
+                <option value="Gerencial" {% if usuario['perfil'] == 'Gerencial' %}selected{% endif %}>Gerencial</option>
+                <option value="Operador" {% if usuario['perfil'] == 'Operador' %}selected{% endif %}>Operador</option>
+            </select>
+
+            <button type="submit">Salvar Alterações</button>
+        </form>
+        <a href="{{ url_for('cadastrar_usuario') }}">Voltar</a>
+    </div>
+</body>
+</html>

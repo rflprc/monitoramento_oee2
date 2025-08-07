@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Máquina</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <h2>Editar Máquina</h2>
+
+        <form method="POST">
+            <label>ID da Máquina (não editável):</label>
+            <input type="text" name="id_maquina" value="{{ maquina['id_maquina'] }}" readonly>
+
+            <label>Nome da Máquina:</label>
+            <input type="text" name="nome_maquina" value="{{ maquina['nome_maquina'] }}" required>
+
+            <label>Setor:</label>
+            <input type="text" name="setor" value="{{ maquina['setor'] }}" required>
+
+            <label>Meta por Hora:</label>
+            <input type="number" name="meta_hora" value="{{ maquina['meta_hora'] }}" required>
+
+            <label>Meta por Dia:</label>
+            <input type="number" name="meta_dia" value="{{ maquina['meta_dia'] }}" required>
+
+            <label>Tipo da Máquina:</label>
+            <select name="tipo_maquina" required>
+                <option value="Automática" {% if maquina['tipo_maquina'] == 'Automática' %}selected{% endif %}>Automática</option>
+                <option value="Semi-Automática" {% if maquina['tipo_maquina'] == 'Semi-Automática' %}selected{% endif %}>Semi-Automática</option>
+            </select>
+
+            <button type="submit">Salvar Alterações</button>
+        </form>
+
+        <a href="{{ url_for('cadastrar_maquina') }}">Voltar</a>
+    </div>
+</body>
+</html>

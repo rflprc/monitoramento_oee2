@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Sistema OEE</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <h2>Login</h2>
+        <form method="POST">
+            <label for="matricula">Matrícula</label>
+            <input type="text" id="matricula" name="matricula" maxlength="6" pattern="\d{6}" required>
+
+            <label for="senha">Senha</label>
+            <input type="password" id="senha" name="senha" required>
+
+            <button type="submit">Entrar</button>
+        </form>
+
+        <a href="{{ url_for('redefinir_senha') }}">Esqueci minha senha</a>
+        {% if erro %}
+            <p class="erro">{{ erro }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>

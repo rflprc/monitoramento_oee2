@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Redefinir Senha</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <h2>Redefinir Senha</h2>
+        <form method="POST">
+            <label for="matricula">Matrícula</label>
+            <input type="text" name="matricula" required maxlength="6" pattern="\d{6}">
+
+            <label for="nova_senha">Nova Senha</label>
+            <input type="password" name="nova_senha" required>
+
+            <label for="confirmar_nova_senha">Confirmar Nova Senha</label>
+            <input type="password" name="confirmar_nova_senha" required>
+
+            <button type="submit">Redefinir</button>
+        </form>
+
+        {% if mensagem %}
+            <p class="erro">{{ mensagem }}</p>
+        {% endif %}
+        <a href="{{ url_for('login') }}">Voltar ao Login</a>
+    </div>
+</body>
+</html>

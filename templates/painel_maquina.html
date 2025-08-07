@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel da Máquina</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .painel-container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .status {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .botoes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .botoes button {
+            flex: 1;
+            padding: 12px;
+            font-size: 1em;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .botoes button.producao { background-color: #28a745; color: white; }
+        .botoes button.parada { background-color: #dc3545; color: white; }
+
+        .historico {
+            max-height: 300px;
+            overflow-y: auto;
+            border-top: 1px solid #ccc;
+            padding-top: 15px;
+        }
+
+        .historico h4 {
+            margin-top: 0;
+        }
+
+        .linha-historico {
+            padding: 6px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 0.95em;
+        }
+    </style>
+</head>
+<body>
+    <div class="painel-container">
+        <h2>Painel da Máquina {{ id_maquina }}</h2>
+
+        <div class="status">
+            <strong>Status atual:</strong>
+            <span id="status-maquina">{{ status_maquina }}</span>
+        </div>
+
+        <div class="botoes">
+            <button class="producao" onclick="alternarProducao()">
+                {{ 'Encerrar Produção' if atividade_ativa else 'Iniciar Produção' }}
+            </button>
+
+            <button class="parada" onclick="alternarParada('Manutenção')">Manutenção</button>
+            <button class="parada" onclick="alternarParada('Abastecimento')">Abastecimento</button>
+            <button class="parada" onclick="alternarParada('Setup')">Setup</button>
+            <button class="parada" onclick="alternarParada('Outros')">Outros</button>
+        </div>
+
+        <div class="historico">
+            <h4>Histórico de Atividades</h4>
+            {% if atividade %}
+                <div class="linha-historico">
+                    <strong>Atividade {{ atividade['id_atividade'] }}</strong> — Iniciada em {{ atividade['data_inicio'] }} às {{ atividade['hora_inicio'] }} por {{ atividade['operador_inicio'] }}
+                </div>
+            {% else %}
+                <p>Nenhuma atividade em andamento.</p>
+            {% endif %}
+        </div>
+    </div>
+
+<script>
+    function alternarProducao() {
+        if(confirm('{{ "Deseja realmente encerrar a produção?" if atividade_ativa else "Deseja iniciar a produção?" }}')) {
+            fetch('/acao_producao/{{ id_maquina }}', {
+                method: 'POST'
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Erro ao executar ação de produção');
+                }
+            });
+        }
+    }
+
+    function alternarParada(tipo) {
+        if(confirm(`Deseja ${tipo === 'Manutenção' ? 'iniciar' : 'registrar'} uma parada para ${tipo.toLowerCase()}?`)) {
+            fetch('/acao_parada/{{ id_maquina }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tipo: tipo })
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Erro ao executar ação de parada');
+                }
+            });
+        }
+    }
+</script>
+
+</body>
+</html>
